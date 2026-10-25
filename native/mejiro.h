@@ -66,6 +66,13 @@ int32_t mejiro_core_session_set_typing_mode(uint8_t *session, uint8_t mode);
 /* Desktop bridge: Plover body is NUL terminated. Returns -3 for controls.
  * Rust Session owns runtime controls; this function is a pure preview. */
 uint32_t mejiro_abi_version(void);
+/* Plover confirmed-history preview; supports all control requests (0..6).
+ * No argument is modified on failure. */
+int32_t mejiro_plover_preview(const uint8_t *, size_t, const mejiro_state *,
+                              uint8_t *, size_t, mejiro_state *,
+                              uint8_t *request, uint8_t *argument);
+int32_t mejiro_plover_override(const uint8_t *, size_t, const mejiro_state *,
+                               uint8_t *, size_t, mejiro_state *);
 int32_t mejiro_translate(const uint8_t *, size_t, const mejiro_state *, bool,
                          uint8_t *, size_t, mejiro_state *, uint8_t *output_context);
 #ifdef __cplusplus

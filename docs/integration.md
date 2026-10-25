@@ -64,7 +64,10 @@ Ploverの辞書検索は同じ候補を複数回参照する場合があるた�
 Ploverがundoしたときは、残った確定履歴に対応する状態を復元します。Ploverが担当する削除とエンジンの `Session` による削除を重ねないようにします。
 
 上書き辞書を使ったときも、確定履歴側で文法分類を更新します。
-Plover書式本文の生成には `mejiro_translate`、型付きの結果や制御要求の判定には `mejiro_core_translate` を使えます。
+Plover版では `mejiro_plover_preview` を使い、書式本文・次の状態・制御要求を一緒に取得します。
+プラグインの `mejiro_engine` 拡張が確定直前に変換し、状態をPloverのTranslation履歴に保存します。
+ソースの配布用コピーは `python tools/sync_plover_engine.py ../Plover_Mejiro` で生成します。プラグインのビルド時に共有ライブラリを生成するため、Python側の母音・活用・助詞表を編集する必要はありません。
+既存の `mejiro_translate` と `mejiro_core_translate` も引き続き利用できます。
 Pythonによる呼び出しの実例は[比較ツール](../tools/compare_plover.py)でも確認できます。
 
 ## QMKへの接続
