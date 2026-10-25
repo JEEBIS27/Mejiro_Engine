@@ -348,7 +348,7 @@ pub struct Translation {
 fn control(s: &Stroke<'_>, raw: &str) -> Option<Request> {
     match raw {
         "-U" => return Some(Request::Undo),
-        "#-" => return Some(Request::Repeat),
+        "#-" | "#" => return Some(Request::Repeat),
         "#-n" => return Some(Request::ToggleTyping),
         _ => {}
     }

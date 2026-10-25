@@ -3,6 +3,57 @@ use mejiro_engine::*;
 fn preview(raw: &str, state: State) -> Translation {
     translate(raw, state, false).unwrap()
 }
+
+#[test]
+fn revised_minor_vowels_and_exception_kana() {
+    for (stroke, expected) in [
+        ("Yk-", "うぁ"),
+        ("YInk-", "うぃん"),
+        ("YIAntk-", "うぇー"),
+        ("YIAUtk-", "うぉっ"),
+        ("IAUtk-", "いぇっ"),
+        ("Yt-", "いい"),
+        ("IUnt-", "おいん"),
+        ("YIUnt-", "よいん"),
+        ("IAUt-", "あう"),
+        ("YIAUt-", "いぇい"),
+        ("KYk-", "くぁ"),
+        ("TYIAUk-", "つぉ"),
+        ("TKYIAk-", "ふぇ"),
+        ("STKNYk-", "ゔぁ"),
+        ("STKNYIk-", "ゔぃ"),
+        ("STKNYIAk-", "ゔぇ"),
+        ("STKNYIAUntk-", "ゔぉー"),
+        ("STKNU-", "ゔ"),
+        ("STKNYU-", "ふゅ"),
+        ("STKNIU-", "てゅ"),
+        ("STKNYIUntk-", "ゔゅー"),
+        ("TNIU-", "とぅ"),
+        ("TNYIUtk-", "どぅっ"),
+        ("TNYIUntk-", "どぅー"),
+        ("TNYIAUntk-", "づぉー"),
+        ("TNYA-", "てぃ"),
+        ("TNYU-", "でゅ"),
+        ("TNYAU-", "でぃ"),
+        ("SKU-", "ゎ"),
+        ("SKYA-", "ゐ"),
+        ("SKYU-", "いう"),
+        ("SKYAU-", "ゑ"),
+        ("SKYk-", "うぁ"),
+        ("SKIAUk-", "うぃぇ"),
+        ("STNYk-", "ぅぁ"),
+        // IU/YIU t/nt still select minor vowels, while n/tk/ntk extend exceptions.
+        ("TNIUn-", "とぅん"),
+        ("TNIUt-", "どい"),
+        ("TNYIUnt-", "ぢょいん"),
+    ] {
+        assert_eq!(
+            preview(stroke, State::default()).output.text.as_str(),
+            expected,
+            "{stroke}"
+        );
+    }
+}
 fn input<const H: usize>(s: &mut Session<H>, raw: &str) -> Event {
     let event = s.process(raw).unwrap();
     if let Some(ticket) = event.ticket {

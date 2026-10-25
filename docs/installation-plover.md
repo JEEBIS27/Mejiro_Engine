@@ -7,6 +7,7 @@
 ## 用意するもの
 
 - Ploverと、プラグインを導入できる環境。
+- ソースからインストールする場合はRust 1.88以上・Cargo・Cリンカー。ビルド済みwheelを使う場合は不要です。
 - Ploverで入力を受け取れるキーボード。
 - [Plover版メジロ式](https://github.com/JEEBIS27/Plover_Mejiro)の配列表。
 
@@ -20,8 +21,12 @@
    ```
 
 3. インストールが完了したらPloverを再起動します。
-4. `Configure` → `System` で `Mejiro` を選びます。
-5. `Machine` で使用するキーボードの入力方式を選び、キー配置を設定します。具体的な割り当ては[Plover版の説明](https://github.com/JEEBIS27/Plover_Mejiro#readme)を参照してください。
+4. `Configure` → `Plugins` で `mejiro_engine` 拡張を有効にします。
+5. `Configure` → `System` で `Mejiro` を選びます。
+6. `Machine` で使用するキーボードの入力方式を選び、キー配置を設定します。具体的な割り当ては[Plover版の説明](https://github.com/JEEBIS27/Plover_Mejiro#readme)を参照してください。
+
+Plover版も共通Rustエンジンで変換します。既存の `mejiro.py` 辞書は引き続き使えます。
+以前の `mejiro_commands.json` をコピーしている場合は、そのコピーを無効にしてRust側のコマンド定義を使います。
 
 ## 入力を確認する
 
