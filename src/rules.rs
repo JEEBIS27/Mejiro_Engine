@@ -254,6 +254,42 @@ fn conjugate(
     }
     Ok(text)
 }
+fn registered_verb(stem: &str, inflection: &str, i: usize, suffix: &str) -> Result<Text> {
+    let special = match (stem, inflection) {
+        ("い", "k") => return join(&[IKU_LIST[i], suffix]),
+        ("あ", "r") => return join(&[ARU_LIST[i], suffix]),
+        (_, "sh") => Some(SAHEN_LIST),
+        (_, "kh") => Some(KAHEN_LIST),
+        _ => None,
+    };
+    if let Some(row) = special {
+        return join(&[stem, row[i], suffix]);
+    }
+    let (row, consonant, voiced) = if let Some(c) = inflection.strip_suffix('i') {
+        (CONJUGATE_KAMI_MAP, c, false)
+    } else if let Some(c) = inflection.strip_suffix('e') {
+        (CONJUGATE_SIMO_MAP, c, false)
+    } else {
+        (CONJUGATE_GODAN_MAP, inflection, true)
+    };
+    let tail = conjugate(row, consonant, i, suffix, voiced)?;
+    let text = join(&[stem, tail.as_str()])?;
+    if voiced {
+        let mut text = text;
+        for (from, to) in [
+            ("くださり", "ください"),
+            ("ござり", "ござい"),
+            ("なさり", "なさい"),
+            ("いらっしゃり", "いらっしゃい"),
+            ("おっしゃり", "おっしゃい"),
+        ] {
+            text = replace(text.as_str(), from, to)?;
+        }
+        Ok(text)
+    } else {
+        Ok(text)
+    }
+}
 fn verb(s: &Stroke<'_>, key: &str, left: &str, left_syllable: &str, right: &str) -> Result<Text> {
     let l = s.left.particle;
     let r = s.right.particle;
@@ -290,20 +326,8 @@ fn verb(s: &Stroke<'_>, key: &str, left: &str, left_syllable: &str, right: &str)
     if !s.star {
         return Ok(Text::new());
     }
-    for (registered, row, voiced) in [
-        (VERB_GODAN_MAP, CONJUGATE_GODAN_MAP, true),
-        (VERB_KAMI_MAP, CONJUGATE_KAMI_MAP, false),
-        (VERB_SIMO_MAP, CONJUGATE_SIMO_MAP, false),
-    ] {
-        if let Some(entry) = get(registered, key) {
-            let tail = conjugate(row, entry[1], i, suffix, voiced)?;
-            let text = join(&[entry[0], tail.as_str()])?;
-            return if voiced {
-                replace(text.as_str(), "くださり", "ください")
-            } else {
-                Ok(text)
-            };
-        }
+    if let Some((_, entry)) = VERB_MAP.iter().find(|(stroke, _)| *stroke == key) {
+        return registered_verb(entry[0], entry[1], i, suffix);
     }
     if s.right.vowel == "IU" && s.right.consonant.is_empty() {
         let tail = conjugate(CONJUGATE_GODAN_MAP, "w", i, suffix, false)?;
