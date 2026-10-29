@@ -63,6 +63,33 @@ int32_t mejiro_core_session_process(uint8_t *session, const uint8_t *stroke,
 int32_t mejiro_core_session_ack(uint8_t *session, uint64_t ticket, uint32_t units);
 int32_t mejiro_core_session_reset(uint8_t *session);
 int32_t mejiro_core_session_set_typing_mode(uint8_t *session, uint8_t mode);
+/* Runtime dictionary overlay. Kinds: user=0, general=1,
+ * general-left=2, general-right=3, verb=4. General context 0 infers
+ * grammar from the word; 1..8 use an explicit context.
+ * Each edit clears linguistic state/history, retaining macros and mode.
+ * Host owns persistence: enumerate entries and restore them after init.
+ * set/hide/clear return 0, -1 invalid, -2 full/too long.
+ * get returns 0 or -3 when index is beyond the overlay length. */
+#define MEJIRO_RULE_CAPACITY 24
+#define MEJIRO_RULE_KEY_CAPACITY 32
+#define MEJIRO_RULE_VALUE_CAPACITY 96
+#define MEJIRO_RULE_ROW_CAPACITY 8
+typedef struct {
+    uint8_t kind, context, hidden, key_len;
+    uint8_t value_len, row_len, reserved[2];
+    uint8_t key[MEJIRO_RULE_KEY_CAPACITY];
+    uint8_t value[MEJIRO_RULE_VALUE_CAPACITY];
+    uint8_t row[MEJIRO_RULE_ROW_CAPACITY];
+} mejiro_rule;
+int32_t mejiro_core_session_rule_set(uint8_t *session, const mejiro_rule *rule);
+int32_t mejiro_core_session_rule_hide(uint8_t *session, uint8_t kind,
+                                     const uint8_t *key, size_t key_len);
+int32_t mejiro_core_session_rule_clear(uint8_t *session, uint8_t kind,
+                                      const uint8_t *key, size_t key_len);
+int32_t mejiro_core_session_rule_count(const uint8_t *session);
+int32_t mejiro_core_session_rule_get(const uint8_t *session, size_t index,
+                                    mejiro_rule *output);
+int32_t mejiro_core_session_rule_clear_all(uint8_t *session);
 /* Desktop bridge: Plover body is NUL terminated. Returns -3 for controls.
  * Rust Session owns runtime controls; this function is a pure preview. */
 uint32_t mejiro_abi_version(void);

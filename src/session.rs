@@ -52,6 +52,7 @@ pub struct Session<const H: usize = 20> {
     order: [u8; 7],
     order_len: usize,
     typing_mode: Mode,
+    rules: RuleStore,
 }
 impl<const H: usize> Default for Session<H> {
     fn default() -> Self {
@@ -73,10 +74,46 @@ impl<const H: usize> Session<H> {
             order: [0; 7],
             order_len: 0,
             typing_mode: Mode::Romaji,
+            rules: RuleStore::new(),
         }
     }
     pub fn state(&self) -> State {
         self.state
+    }
+    pub fn rules(&self) -> &RuleStore {
+        &self.rules
+    }
+    /// Edit an entry and clear stale context/history after a successful change.
+    pub fn set_rule(
+        &mut self,
+        kind: RuleKind,
+        key: &str,
+        value: &str,
+        row: &str,
+        context: Context,
+    ) -> Result<()> {
+        self.rules.set(kind, key, value, row, context)?;
+        self.reset();
+        Ok(())
+    }
+    pub fn hide_rule(&mut self, kind: RuleKind, key: &str) -> Result<()> {
+        self.rules.hide(kind, key)?;
+        self.reset();
+        Ok(())
+    }
+    pub fn clear_rule(&mut self, kind: RuleKind, key: &str) -> Result<bool> {
+        let removed = self.rules.clear(kind, key)?;
+        if removed {
+            self.reset();
+        }
+        Ok(removed)
+    }
+    pub fn clear_rules(&mut self) {
+        self.rules.clear_all();
+        self.reset();
+    }
+    pub fn preview(&self, raw: &str, include_commands: bool) -> Result<Translation> {
+        translate_with_rules(raw, self.state, include_commands, &self.rules)
     }
     pub fn history_len(&self) -> usize {
         self.len
@@ -253,7 +290,7 @@ impl<const H: usize> Session<H> {
     /// Before undo the host must acknowledge the number of units it can erase.
     pub fn process(&mut self, raw: &str) -> Result<Event> {
         self.replayed_external = ExternalLog::new();
-        let t = translate(raw, self.state, true)?;
+        let t = self.preview(raw, true)?;
         let control = Event {
             kind: EventKind::Control,
             output: Output::new(),

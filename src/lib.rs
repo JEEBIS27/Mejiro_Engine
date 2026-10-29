@@ -8,12 +8,17 @@ mod tables;
 pub const MACRO_KEYS: &[&str] = &["n", "t", "k", "nt", "nk", "tk", "ntk"];
 mod recording;
 mod render;
+mod rule_store;
 mod rules;
 mod session;
 use core::fmt;
 pub use recording::{EXTERNAL_CAPACITY, HidEvent, RecordedEvent};
 pub use render::render;
-pub use rules::{Request, Translation, particle, translate};
+pub use rule_store::{
+    RULE_CAPACITY, RULE_KEY_CAPACITY, RULE_ROW_CAPACITY, RULE_VALUE_CAPACITY, RuleEntry, RuleKind,
+    RuleStore,
+};
+pub use rules::{Request, Translation, particle, translate, translate_with_rules};
 pub use session::{Event, EventKind, Session};
 use tables::*;
 

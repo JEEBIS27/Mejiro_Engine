@@ -3,6 +3,7 @@
 [マニュアル一覧](README.md) · [エンジンの仕様](specification.md) · [組み込み](integration.md)
 
 宣言は [native/mejiro.h](../native/mejiro.h) にあります。
+動詞・略語の登録・削除は[実行時の辞書編集](runtime-rules.md)を参照してください。
 ヘッダーとライブラリは同じエンジンの版を使用してください。
 PC上で呼び出す場合と、QMKへ組み込む場合でライブラリのビルド対象が異なります。
 
