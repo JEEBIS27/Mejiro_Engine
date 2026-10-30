@@ -13,6 +13,7 @@ mejiro-engine = { path = "../Mejiro_Engine" }
 
 クレート名は `mejiro-engine`、Rustコード内の名前は `mejiro_engine` です。
 コアは `no_std` なので、RMKなどの組み込み側でも同じAPIを使用できます。
+動詞・略語の登録・削除は[実行時の辞書編集](runtime-rules.md)を参照してください。
 
 ## 変換を試す
 
