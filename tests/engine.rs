@@ -491,3 +491,28 @@ fn ime_off_follows_optional_system_selection() {
         assert_eq!(input(&mut session, stroke).output.operations(), expected);
     }
 }
+
+#[test]
+fn rebuilt_verb_vocabulary_and_shortcuts() {
+    for (stroke, expected) in [
+        ("TA-TNA*", "ただす"),
+        ("I-TNA*", "いただく"),
+        ("KA-SNI*", "かんじる"),
+        ("TU-TNU*", "つづく"),
+        ("TNU-KIA*", "つづける"),
+        ("TA-NAU*", "たのむ"),
+        ("NAU-SI*", "たのしむ"),
+        ("KI-NI*", "きにする"),
+        ("KI-NIn*", "きにしない"),
+        ("A-*", "ある"),
+        ("A-n*", "ない"),
+        ("KA-*", "かんがえる"),
+        ("AU-*", "おもう"),
+    ] {
+        assert_eq!(
+            preview(stroke, State::default()).output.text.as_str(),
+            expected,
+            "{stroke}"
+        );
+    }
+}
