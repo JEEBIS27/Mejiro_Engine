@@ -48,7 +48,12 @@ fn phonetics_abbreviations_and_verbs_are_symmetric() {
             ("KIn", "きん"),
             ("KIAt", "けつ"),
             ("KI*", "とき"),
-            ("KIA*", "けす"),
+            ("KIA*", "ける"),
+            ("TIA*", "てる"),
+            ("TIAn*", "てない"),
+            ("TIAt*", "てた"),
+            ("TIAk*", "てます"),
+            ("TIAntk*", "てて"),
         ] {
             let raw = if mode == InputMode::Right {
                 format!("-{keys}")
