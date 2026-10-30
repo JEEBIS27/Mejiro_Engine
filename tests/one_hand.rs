@@ -157,3 +157,40 @@ fn i_and_ia_without_star_use_shared_phonetics_for_every_consonant() {
         }
     }
 }
+
+#[test]
+fn one_hand_undo_restores_state_and_backspace_is_a_history_boundary() {
+    use mejiro_engine::{EventKind, Request};
+    for (switch, kana, undo, backspace) in [
+        ("#STKNYIAUntk-", "KI-", "#U-", "#AU-"),
+        ("-STKNYIAUntk*", "-KI", "-U*", "-AU*"),
+    ] {
+        let mut session = Session::<20>::new();
+        session.process(switch).unwrap();
+        let before = session.state();
+        let event = session.process(kana).unwrap();
+        session.acknowledge(event.ticket.unwrap(), 1).unwrap();
+        let preview = session.preview(undo, true).unwrap();
+        assert_eq!(preview.request, Request::Undo);
+        assert_eq!(preview.next, session.state());
+        let event = session.process(undo).unwrap();
+        assert_eq!(event.kind, EventKind::Undo);
+        assert_eq!(event.erase_units, 1);
+        assert_eq!(session.state(), before);
+        let event = session.process(undo).unwrap();
+        assert_eq!(event.erase_units, 2);
+        assert_eq!(session.state().input_mode, before.input_mode);
+        let event = session.process(kana).unwrap();
+        session.acknowledge(event.ticket.unwrap(), 1).unwrap();
+        let vowel = session.state().last_vowel();
+        let event = session.process(backspace).unwrap();
+        assert_eq!(event.output.operations()[0].key, Key::Backspace);
+        assert_eq!(session.state().input_mode, before.input_mode);
+        assert_eq!(session.state().last_vowel(), vowel);
+        assert_eq!(session.history_len(), 0);
+    }
+    assert_ne!(
+        translate("-U*", State::default(), true).unwrap().request,
+        Request::Undo
+    );
+}
