@@ -43,8 +43,12 @@ fn phonetics_abbreviations_and_verbs_are_symmetric() {
             ("TNt*", "でした"),
             ("K", "く"),
             ("Kt", "いた"),
-            ("KI", "きる"),
-            ("KIA", "ける"),
+            ("KI", "き"),
+            ("KIA", "け"),
+            ("KIn", "きん"),
+            ("KIAt", "けつ"),
+            ("KI*", "とき"),
+            ("KIA*", "けす"),
         ] {
             let raw = if mode == InputMode::Right {
                 format!("-{keys}")
@@ -122,4 +126,29 @@ fn switching_fallback_and_ffi_preserve_linguistic_state() {
     s.process("-U").unwrap();
     assert_eq!(s.state().input_mode, InputMode::Both);
     assert_eq!(s.history_len(), 0);
+}
+
+#[test]
+fn i_and_ia_without_star_use_shared_phonetics_for_every_consonant() {
+    for mode in [InputMode::Left, InputMode::Right] {
+        let state = enter(mode);
+        for c in [
+            "", "S", "T", "K", "N", "ST", "SK", "SN", "TK", "TN", "KN", "STK", "STN", "SKN", "TKN",
+            "STKN",
+        ] {
+            for v in ["I", "IA"] {
+                for p in ["", "n", "t", "k", "nt", "nk", "tk", "ntk"] {
+                    let raw = if mode == InputMode::Left {
+                        format!("{c}{v}{p}-")
+                    } else {
+                        format!("-{c}{v}{p}")
+                    };
+                    let reference =
+                        translate(&format!("{c}{v}{p}-"), State::default(), false).unwrap();
+                    let actual = translate(&raw, state, true).unwrap();
+                    assert_eq!(actual.output, reference.output, "{mode:?}: {raw}");
+                }
+            }
+        }
+    }
 }
