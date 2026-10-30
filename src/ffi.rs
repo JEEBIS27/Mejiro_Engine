@@ -98,10 +98,16 @@ impl TryFrom<CState> for State {
                 2 => Mode::Jis,
                 _ => return Err(Error::InvalidState),
             },
-            vowel: raw.vowel,
+            input_mode: match raw.vowel >> 4 {
+                0 => InputMode::Both,
+                1 => InputMode::Left,
+                2 => InputMode::Right,
+                _ => return Err(Error::InvalidState),
+            },
+            vowel: raw.vowel & 15,
             pending_sokuon: false,
         };
-        if raw.vowel as usize >= VOWEL_STROKES.len() || raw.pending_sokuon > 1 {
+        if (raw.vowel & 15) as usize >= VOWEL_STROKES.len() || raw.pending_sokuon > 1 {
             return Err(Error::InvalidState);
         }
         state.pending_sokuon = raw.pending_sokuon != 0;
@@ -111,7 +117,7 @@ impl TryFrom<CState> for State {
 impl From<State> for CState {
     fn from(state: State) -> Self {
         Self {
-            vowel: state.vowel,
+            vowel: state.vowel | ((state.input_mode as u8) << 4),
             context: state.context as u8,
             mode: state.mode as u8,
             pending_sokuon: state.pending_sokuon as u8,

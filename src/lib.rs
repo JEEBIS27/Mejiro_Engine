@@ -169,10 +169,21 @@ pub enum Mode {
     Jis,
 }
 
+/// Which hand supplies one-hand input. Independent of the output encoding.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[repr(u8)]
+pub enum InputMode {
+    #[default]
+    Both,
+    Left,
+    Right,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct State {
     pub context: Context,
     pub mode: Mode,
+    pub input_mode: InputMode,
     vowel: u8,
     pending_sokuon: bool,
 }
@@ -184,6 +195,7 @@ impl Default for State {
         Self {
             context: Context::Unknown,
             mode: Mode::Kana,
+            input_mode: InputMode::Both,
             vowel: 0,
             pending_sokuon: false,
         }

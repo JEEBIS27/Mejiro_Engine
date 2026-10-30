@@ -7,7 +7,8 @@
 extern "C" {
 #endif
 /* ABI 1. All offsets/lengths are UTF-8 bytes, never Backspace counts.
- * State: vowel index in A,I,U,IA,AU,YA,YU,YAU,Y,YI,YIA,YIU,YIAU,IU,IAU.
+ * State: vowel low nibble indexes A,I,U,IA,AU,YA,YU,YAU,Y,YI,YIA,YIU,YIAU,IU,IAU.
+ * Its high nibble stores input mode: both=0, left=1, right=2.
  * Context: unknown, nominalizable, incomplete, attributive_na,
  * question_predicate, noun, place, indefinite_noun, question_particle (0..8).
  * Mode: kana=0, romaji=1, JIS=2. pending_sokuon is 0 or 1.

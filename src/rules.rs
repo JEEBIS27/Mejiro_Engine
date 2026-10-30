@@ -516,6 +516,44 @@ pub fn translate_with_rules(
     let s = Stroke::parse(raw)?;
     let mut next = state;
     let mut output = Output::new();
+    let full = |h: Hand<'_>| h.consonant == "STKN" && h.vowel == "YIAU" && h.particle == "ntk";
+    let empty = |h: Hand<'_>| h.consonant.is_empty() && h.vowel.is_empty() && h.particle.is_empty();
+    let selected = if full(s.left) && full(s.right) && s.hash && s.star {
+        Some(InputMode::Both)
+    } else if full(s.left) && empty(s.right) && s.hash && !s.star {
+        Some(InputMode::Left)
+    } else if full(s.right) && empty(s.left) && s.star && !s.hash {
+        Some(InputMode::Right)
+    } else {
+        None
+    };
+    if let Some(mode) = selected {
+        next.input_mode = mode;
+        return Ok(Translation {
+            output,
+            next,
+            request: Request::Output,
+            dynamic_particle: false,
+        });
+    }
+    let active = match state.input_mode {
+        InputMode::Left if empty(s.right) && !s.star => Some(s.left),
+        InputMode::Right if empty(s.left) && !s.hash => Some(s.right),
+        _ => None,
+    };
+    if let Some(hand) = active {
+        return one_hand(
+            hand,
+            if state.input_mode == InputMode::Left {
+                s.hash
+            } else {
+                s.star
+            },
+            next,
+            rules,
+        );
+    }
+    next.input_mode = InputMode::Both;
     if let Some(request) = control(&s, raw) {
         return Ok(Translation {
             output,
@@ -703,6 +741,160 @@ fn append_attached(out: &mut Output, p: &Output) -> Result<()> {
         out.append(p)?;
     }
     Ok(())
+}
+
+/// One-hand rules share the ordinary phonetic and conjugation tables.
+fn one_hand(h: Hand<'_>, star: bool, mut next: State, rules: &RuleStore) -> Result<Translation> {
+    let mut output = Output::new();
+    let cv = small_key(&[h.consonant, h.vowel])?;
+    let p = h.particle;
+    if cv.as_str().is_empty() && !star {
+        match p {
+            "n" => output.push_key(Key::Space)?,
+            "ntk" => output.push_key(Key::Return)?,
+            _ => output.push_text(match p {
+                "t" => "、",
+                "k" => "。",
+                "tk" => "・",
+                "nt" => "？",
+                "nk" => "を",
+                _ => "",
+            })?,
+        }
+        output.context = Context::Incomplete;
+    } else {
+        if !h.vowel.is_empty() {
+            next = next.with_vowel(h.vowel)?;
+        }
+        // Explicit irregular verbs take precedence over general abbreviations.
+        let irregular = star && matches!(cv.as_str(), "" | "KU" | "TN");
+        let general = if star && !irregular {
+            if cv.as_str() == "ST" {
+                Some(("から", Context::Incomplete))
+            } else {
+                // Right-hand vocabulary first, then left-hand vocabulary.
+                let find = |kind, table: &'static [(&str, &'static str)]| {
+                    if let Some(entry) = rules.find(kind, cv.as_str()) {
+                        (!entry.hidden && !entry.value.as_str().is_empty())
+                            .then_some((entry.value.as_str(), entry.context))
+                    } else {
+                        get(table, cv.as_str())
+                            .copied()
+                            .filter(|s| !s.is_empty())
+                            .map(|s| (s, Context::Noun))
+                    }
+                };
+                find(RuleKind::GeneralRight, ABSTRACT_MAP_RIGHT)
+                    .or_else(|| find(RuleKind::GeneralLeft, ABSTRACT_MAP_LEFT))
+            }
+        } else {
+            None
+        };
+        if let Some((word, context)) = general {
+            output.push_text(word)?;
+            output.push_text(match p {
+                "n" => "、",
+                "t" => "に",
+                "k" => "の",
+                "tk" => "で",
+                "nt" => "と",
+                "nk" => "を",
+                "ntk" => "は",
+                _ => "",
+            })?;
+            output.context = if p.is_empty() {
+                context
+            } else {
+                Context::Incomplete
+            };
+        } else {
+            let (i, suffix) = AUXILIARIES[particle_index(p)];
+            let key = small_key(&[cv.as_str(), "-"])?;
+            let registered = if star {
+                rules.find(RuleKind::Verb, key.as_str())
+            } else {
+                None
+            };
+            let builtin = if star && registered.is_none() {
+                VERB_MAP
+                    .iter()
+                    .find(|(k, _)| *k == key.as_str())
+                    .map(|(_, v)| *v)
+            } else {
+                None
+            };
+            let consonant = value(CONSONANTS, h.consonant);
+            if irregular {
+                output.text = match cv.as_str() {
+                    "KU" => join(&[KAHEN_LIST[i], suffix])?,
+                    "TN" => Text::of(value(DESU, p))?,
+                    _ => join(&[SAHEN_LIST[i], suffix])?,
+                };
+            } else if let Some(entry) = registered.filter(|e| !e.hidden) {
+                output.text = registered_verb(entry.value.as_str(), entry.row.as_str(), i, suffix)?;
+            } else if let Some(entry) = builtin {
+                output.text = registered_verb(entry[0], entry[1], i, suffix)?;
+            } else if h.vowel.is_empty()
+                && !h.consonant.is_empty()
+                && get(CONJUGATE_GODAN_MAP, consonant).is_some()
+            {
+                output.text = conjugate(CONJUGATE_GODAN_MAP, consonant, i, suffix, true)?;
+            } else if matches!(h.vowel, "I" | "IA")
+                && get(
+                    if h.vowel == "I" {
+                        CONJUGATE_KAMI_MAP
+                    } else {
+                        CONJUGATE_SIMO_MAP
+                    },
+                    if consonant.is_empty() { "w" } else { consonant },
+                )
+                .is_some()
+            {
+                output.text = conjugate(
+                    if h.vowel == "I" {
+                        CONJUGATE_KAMI_MAP
+                    } else {
+                        CONJUGATE_SIMO_MAP
+                    },
+                    if consonant.is_empty() { "w" } else { consonant },
+                    i,
+                    suffix,
+                    false,
+                )?;
+            } else if star {
+                // Unassigned abbreviation: no invented verb or phonetic output.
+                return Err(Error::InvalidStroke);
+            } else {
+                output.text = base_kana(h.consonant, h.vowel, Some(p), next.last_vowel())?;
+                output.context = Context::Unknown;
+                return finish_one_hand(output, next, h);
+            }
+            output.context = verb_context("", p, cv.as_str() == "TN" && star);
+        }
+    }
+    finish_one_hand(output, next, h)
+}
+
+fn finish_one_hand(mut output: Output, mut next: State, h: Hand<'_>) -> Result<Translation> {
+    let terminal = h.consonant == "STN" && h.vowel.is_empty() && h.particle == "tk";
+    render(&mut output, &mut next)?;
+    if terminal && next.pending_sokuon {
+        output.push_text(if next.mode == Mode::Romaji {
+            "ltsu"
+        } else {
+            "Z"
+        })?;
+        next.pending_sokuon = false;
+    }
+    if !output.is_empty() {
+        next.context = output.context;
+    }
+    Ok(Translation {
+        output,
+        next,
+        request: Request::Output,
+        dynamic_particle: false,
+    })
 }
 
 #[cfg(test)]
