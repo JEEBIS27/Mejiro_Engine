@@ -71,7 +71,7 @@ int32_t mejiro_core_session_set_typing_mode(uint8_t *session, uint8_t mode);
  * Host owns persistence: enumerate entries and restore them after init.
  * set/hide/clear return 0, -1 invalid, -2 full/too long.
  * get returns 0 or -3 when index is beyond the overlay length. */
-#define MEJIRO_RULE_CAPACITY 28
+#define MEJIRO_RULE_CAPACITY 96
 #define MEJIRO_RULE_KEY_CAPACITY 32
 #define MEJIRO_RULE_VALUE_CAPACITY 96
 #define MEJIRO_RULE_ROW_CAPACITY 8
