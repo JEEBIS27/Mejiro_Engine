@@ -26,6 +26,7 @@
 6. `Machine` で使用するキーボードの入力方式を選び、キー配置を設定します。具体的な割り当ては[Plover版の説明](https://github.com/JEEBIS27/Plover_Mejiro#readme)を参照してください。
 
 Plover版も共通Rustエンジンで変換します。既存の `mejiro.py` 辞書は引き続き使えます。
+辞書の逆引きも共通Rustエンジンを呼びます。[逆引きの仕様](reverse-lookup.md)を参照してください。
 以前の `mejiro_commands.json` をコピーしている場合は、そのコピーを無効にしてRust側のコマンド定義を使います。
 
 ## 入力を確認する
