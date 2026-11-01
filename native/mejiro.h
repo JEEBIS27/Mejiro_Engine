@@ -103,6 +103,23 @@ int32_t mejiro_plover_override(const uint8_t *, size_t, const mejiro_state *,
                                uint8_t *, size_t, mejiro_state *);
 int32_t mejiro_translate(const uint8_t *, size_t, const mejiro_state *, bool,
                          uint8_t *, size_t, mejiro_state *, uint8_t *output_context);
+/* Desktop/WebAssembly reverse lookup. The input is UTF-8 hiragana; span
+ * offsets count Unicode characters. kind: basic=0, particle=1, verb=2,
+ * general=3, user=4, minor/exception=5. lemma is optional UTF-8 dictionary
+ * form, for example "いう". Output is NUL-terminated JSON. Return value is the
+ * byte length, -1 invalid input, -2 output buffer too small, -3 text too long,
+ * or -4 search limit before a basic candidate could be determined. */
+typedef struct {
+    uint16_t start, end;
+    uint8_t kind, lemma_len;
+    uint8_t lemma[32];
+} mejiro_reverse_span;
+int32_t mejiro_reverse_lookup(const uint8_t *input, size_t input_len,
+                              const mejiro_reverse_span *grammar, size_t grammar_len,
+                              const mejiro_rule *rules, size_t rule_len,
+                              uint8_t *output, size_t capacity);
+uint8_t *mejiro_reverse_alloc(size_t capacity);
+void mejiro_reverse_free(uint8_t *ptr, size_t capacity);
 #ifdef __cplusplus
 }
 #endif
