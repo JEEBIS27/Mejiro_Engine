@@ -138,7 +138,6 @@ pub const ABSTRACT_MAP: &[(&str, &str)] = &[
     ("KN-T", "ごと"),
     ("N-", "なに"),
     ("N-N", "なに"),
-    ("NA-N", "なん"),
     ("S-", "すら"),
     ("S-KAU", "そこ"),
     ("S-NA", "そんな"),
@@ -160,7 +159,8 @@ pub const ABSTRACT_MAP: &[(&str, &str)] = &[
     ("T-SKN", "ため"),
     ("T-ST", "ところ"),
     ("T-TN", "ただ"),
-    ("TK-", "はなし"),
+    ("TK-", "ほう"),
+    ("TK-NA", "ふうな"),
     ("TK-T", "ひと"),
     ("TKN-", "ことば"),
     ("TN-", "だから"),
@@ -182,15 +182,18 @@ pub const ABSTRACT_MAP_LEFT: &[(&str, &str)] = &[
     ("NIU", "なんていう"),
     ("S", "その"),
     ("SIU", "そういう"),
+    ("SK", "あの"),
     ("SKYU", "いう"),
     ("STN", ""),
     ("SY", "そんな"),
     ("T", "との"),
     ("TIU", "という"),
+    ("TK", "ほうの"),
+    ("TKY", "ふうな"),
     ("TN", "どの"),
     ("TNIU", "どういう"),
     ("TNY", "どんな"),
-    ("Y", "あんな"),
+    ("Y", "ような"),
 ];
 pub const ABSTRACT_MAP_RIGHT: &[(&str, &str)] = &[
     ("AU", "おもい"),
@@ -4652,7 +4655,7 @@ pub const PLACE_WORDS: &[&str] = &[
     "どっち",
 ];
 pub const INDEFINITE_WORDS: &[&str] = &["どれ", "なに", "なん"];
-pub const ATTRIBUTIVE_NA_WORDS: &[&str] = &["あんな", "こんな", "そんな", "どんな"];
+pub const ATTRIBUTIVE_NA_WORDS: &[&str] = &["あんな", "こんな", "そんな", "どんな", "ふうな", "ような"];
 pub const QUESTION_PARTICLES: &[&str] = &["から", "だから", "だけ", "と", "の", "も"];
 pub const NOMINALIZABLE_EXCEPTIONS: &[&str] = &[
     "nt-", "nt-n", "nt-nt", "nt-t", "tk-", "tk-k", "tk-n", "tk-nk", "tk-nt", "tk-t", "tk-tk",

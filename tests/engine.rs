@@ -82,18 +82,33 @@ fn grammar_uses_classified_output_not_suffix_guessing() {
 fn noun_no_in_general_abbreviations_and_after_na() {
     for (stroke, expected) in [
         ("K-NAU*", "こんなの"),
-        ("Y-NAU*", "あんなの"),
+        ("SK-NAU*", "あんなの"),
         ("S-NAU*", "そんなの"),
         ("TN-NAU*", "どんなの"),
         ("N-NAU*", "なんなの"),
         ("KIU-NAU*", "こういうの"),
         ("N-TKYIAU*", "なんのふう"),
         ("K-TKYIAU*", "こんなふう"),
+        ("Y-NAU*", "ようなの"),
+        ("TK-NAU*", "ほうの"),
+        ("TKY-NAU*", "ふうなの"),
+        ("SK-KA*", "あのかんじ"),
+        ("SK-YI*", "あのよう"),
+        ("SK-TKYIAU*", "あんなふう"),
+        ("Y-KA*", "ようなかんじ"),
+        ("TK-KA*", "ほうのかんじ"),
+        ("TKY-KA*", "ふうなかんじ"),
+        ("TK-", "ほう"),
+        ("K-KA*", "このかんじ"),
+        ("KY-KA*", "こんなかんじ"),
     ] {
         let result = preview(stroke, State::default());
         assert_eq!(result.output.text.as_str(), expected, "{stroke}");
         assert_eq!(result.output.context, Context::Noun, "{stroke}");
     }
+    let attributive = preview("TK-NA", State::default());
+    assert_eq!(attributive.output.text.as_str(), "ふうな");
+    assert_eq!(attributive.output.context, Context::AttributiveNa);
     let mut session = Session::<20>::new();
     assert_eq!(input(&mut session, "k-k").output.text.as_str(), "な");
     assert_eq!(input(&mut session, "ntk-k").output.text.as_str(), "のか");

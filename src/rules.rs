@@ -221,6 +221,7 @@ fn abstract_word(s: &Stroke<'_>, key: &str, rules: &RuleStore) -> Result<Option<
                     "その" => "そんな",
                     "どの" => "どんな",
                     "なんの" => "なんな",
+                    "ほうの" => "ほう",
                     _ => l,
                 }
             } else {
