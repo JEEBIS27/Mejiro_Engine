@@ -223,6 +223,15 @@ fn particle_no_order_follows_the_previous_context() {
 fn desu_uses_particle_or_the_selected_abbreviation() {
     for (stroke, expected) in [
         ("-TN", "です"),
+        ("N-TN", "なんです"),
+        ("N-TNk", "なんでしょう"),
+        ("N-TNn", "なんですね"),
+        ("N-TNnk", "なんですが、"),
+        ("N-TNnt", "なんです。"),
+        ("N-TNntk", "なんでして、"),
+        ("N-TNt", "なんでした"),
+        ("N-TNtk", "なんですか?"),
+        ("N-", "なに"),
         ("k-TN", "のです"),
         ("t-TN", "にです"),
         ("ST-TN", "からです"),

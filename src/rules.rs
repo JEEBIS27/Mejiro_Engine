@@ -316,7 +316,9 @@ fn desu_prefix(s: &Stroke<'_>, context: Context, rules: &RuleStore) -> Result<Op
     } else {
         get(builtin, key.as_str()).copied()
     };
-    word.map(Text::of).transpose()
+    // 「何」は「です」の活用形に接続するとき「なん」と読む。
+    word.map(|word| Text::of(if word == "なに" { "なん" } else { word }))
+        .transpose()
 }
 fn conjugate(
     row: &[(&str, &[&str])],
