@@ -221,6 +221,7 @@ fn abstract_word(s: &Stroke<'_>, key: &str, rules: &RuleStore) -> Result<Option<
                     "その" => "そんな",
                     "どの" => "どんな",
                     "なんの" => "なんな",
+                    "ほうの" => "ほう",
                     _ => l,
                 }
             } else {
@@ -315,7 +316,9 @@ fn desu_prefix(s: &Stroke<'_>, context: Context, rules: &RuleStore) -> Result<Op
     } else {
         get(builtin, key.as_str()).copied()
     };
-    word.map(Text::of).transpose()
+    // 「何」は「です」の活用形に接続するとき「なん」と読む。
+    word.map(|word| Text::of(if word == "なに" { "なん" } else { word }))
+        .transpose()
 }
 fn conjugate(
     row: &[(&str, &[&str])],
@@ -1040,6 +1043,28 @@ mod verb_tests {
             registered_verb("し", "nh", 5, ""),
             Err(Error::InvalidStroke)
         );
+    }
+
+    #[test]
+    fn noun_plus_suru_is_not_registered_as_a_verb() {
+        for stem in [
+            "すらいでぃんぐ",
+            "たいいん",
+            "とうぶん",
+            "べんきょう",
+            "せつめい",
+            "かくにん",
+            "りょこう",
+            "れんしゅう",
+            "だうんろーど",
+        ] {
+            assert!(
+                !VERB_MAP
+                    .iter()
+                    .any(|(_, entry)| entry[0] == stem && entry[1] == "sh"),
+                "noun + suru must be entered separately: {stem}"
+            );
+        }
     }
 
     #[test]

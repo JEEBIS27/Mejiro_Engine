@@ -79,21 +79,59 @@ fn grammar_uses_classified_output_not_suffix_guessing() {
     assert_eq!(input(&mut s, "k-k").output.text.as_str(), "な");
 }
 #[test]
+fn demonstrative_extended_general_abbreviations() {
+    for (stroke, expected) in [
+        ("YIU-TKA*", "いうようなはなし"),
+        ("IAU-TKA*", "ふうなはなし"),
+        ("YIAU-TKA*", "いうふうなはなし"),
+        ("KYIU-TKA*", "こういうようなはなし"),
+        ("SYIU-TKA*", "そういうようなはなし"),
+        ("SKYIU-TKA*", "ああいうようなはなし"),
+        ("TNYIU-TKA*", "どういうようなはなし"),
+        ("KIAU-TKA*", "こんなふうなはなし"),
+        ("SIAU-TKA*", "そんなふうなはなし"),
+        ("SKIAU-TKA*", "あんなふうなはなし"),
+        ("TNIAU-TKA*", "どんなふうなはなし"),
+        ("KYIAU-TKA*", "こういうふうなはなし"),
+        ("SYIAU-TKA*", "そういうふうなはなし"),
+        ("SKYIAU-TKA*", "ああいうふうなはなし"),
+        ("TNYIAU-TKA*", "どういうふうなはなし"),
+    ] {
+        assert_eq!(preview(stroke, State::default()).output.text.as_str(), expected, "{stroke}");
+    }
+}
+
+#[test]
 fn noun_no_in_general_abbreviations_and_after_na() {
     for (stroke, expected) in [
         ("K-NAU*", "こんなの"),
-        ("Y-NAU*", "あんなの"),
+        ("SK-NAU*", "あんなの"),
         ("S-NAU*", "そんなの"),
         ("TN-NAU*", "どんなの"),
         ("N-NAU*", "なんなの"),
         ("KIU-NAU*", "こういうの"),
         ("N-TKYIAU*", "なんのふう"),
         ("K-TKYIAU*", "こんなふう"),
+        ("Y-NAU*", "ようなの"),
+        ("TK-NAU*", "ほうの"),
+        ("TKY-NAU*", "ふうなの"),
+        ("SK-KA*", "あのかんじ"),
+        ("SK-YI*", "あのよう"),
+        ("SK-TKYIAU*", "あんなふう"),
+        ("Y-KA*", "ようなかんじ"),
+        ("TK-KA*", "ほうのかんじ"),
+        ("TKY-KA*", "ふうなかんじ"),
+        ("TK-", "ほう"),
+        ("K-KA*", "このかんじ"),
+        ("KY-KA*", "こんなかんじ"),
     ] {
         let result = preview(stroke, State::default());
         assert_eq!(result.output.text.as_str(), expected, "{stroke}");
         assert_eq!(result.output.context, Context::Noun, "{stroke}");
     }
+    let attributive = preview("TK-NA", State::default());
+    assert_eq!(attributive.output.text.as_str(), "ふうな");
+    assert_eq!(attributive.output.context, Context::AttributiveNa);
     let mut session = Session::<20>::new();
     assert_eq!(input(&mut session, "k-k").output.text.as_str(), "な");
     assert_eq!(input(&mut session, "ntk-k").output.text.as_str(), "のか");
@@ -185,6 +223,15 @@ fn particle_no_order_follows_the_previous_context() {
 fn desu_uses_particle_or_the_selected_abbreviation() {
     for (stroke, expected) in [
         ("-TN", "です"),
+        ("N-TN", "なんです"),
+        ("N-TNk", "なんでしょう"),
+        ("N-TNn", "なんですね"),
+        ("N-TNnk", "なんですが、"),
+        ("N-TNnt", "なんです。"),
+        ("N-TNntk", "なんでして、"),
+        ("N-TNt", "なんでした"),
+        ("N-TNtk", "なんですか?"),
+        ("N-", "なに"),
         ("k-TN", "のです"),
         ("t-TN", "にです"),
         ("ST-TN", "からです"),
@@ -631,9 +678,13 @@ fn rebuilt_verb_vocabulary_and_shortcuts() {
         ("NI-SU*", "きにする"),
         ("NI-SUn*", "きにしない"),
         ("SAU-TIA*", "そだてる"),
-        ("TKNIA-KYAU*", "べんきょうする"),
-        ("SIA-*", "せつめいする"),
-        ("KA-NI*", "かくにんする"),
+        ("KA-TKNU*", "かぶる"),
+        ("KA-TKNUn*", "かぶらない"),
+        ("KA-TKNUntk*", "かぶって"),
+        ("U-TKNU*", "うかぶ"),
+        ("KI-TU*", "きをつける"),
+        ("TA-KIA*", "たすける"),
+        ("TKA-KU*", "はたらく"),
         ("AU-SU*", "とおす"),
         ("IA-SU*", "かえす"),
         ("SKA-SU*", "かわす"),
