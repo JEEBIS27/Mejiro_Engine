@@ -1044,6 +1044,28 @@ mod verb_tests {
     }
 
     #[test]
+    fn noun_plus_suru_is_not_registered_as_a_verb() {
+        for stem in [
+            "すらいでぃんぐ",
+            "たいいん",
+            "とうぶん",
+            "べんきょう",
+            "せつめい",
+            "かくにん",
+            "りょこう",
+            "れんしゅう",
+            "だうんろーど",
+        ] {
+            assert!(
+                !VERB_MAP
+                    .iter()
+                    .any(|(_, entry)| entry[0] == stem && entry[1] == "sh"),
+                "noun + suru must be entered separately: {stem}"
+            );
+        }
+    }
+
+    #[test]
     fn verbs_are_unique_in_stroke_kana_order_with_valid_rows() {
         for (index, &(key, entry)) in VERB_MAP.iter().enumerate() {
             assert_eq!(entry.len(), 2);
