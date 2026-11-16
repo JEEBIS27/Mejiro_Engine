@@ -79,6 +79,132 @@ fn grammar_uses_classified_output_not_suffix_guessing() {
     assert_eq!(input(&mut s, "k-k").output.text.as_str(), "な");
 }
 #[test]
+fn noun_no_in_general_abbreviations_and_after_na() {
+    for (stroke, expected) in [
+        ("K-NAU*", "こんなの"),
+        ("Y-NAU*", "あんなの"),
+        ("S-NAU*", "そんなの"),
+        ("TN-NAU*", "どんなの"),
+        ("N-NAU*", "なんなの"),
+        ("KIU-NAU*", "こういうの"),
+        ("N-TKYIAU*", "なんのふう"),
+        ("K-TKYIAU*", "こんなふう"),
+    ] {
+        let result = preview(stroke, State::default());
+        assert_eq!(result.output.text.as_str(), expected, "{stroke}");
+        assert_eq!(result.output.context, Context::Noun, "{stroke}");
+    }
+    let mut session = Session::<20>::new();
+    assert_eq!(input(&mut session, "k-k").output.text.as_str(), "な");
+    assert_eq!(input(&mut session, "ntk-k").output.text.as_str(), "のか");
+    let mut session = Session::<20>::new();
+    input(&mut session, "k-k");
+    assert_eq!(input(&mut session, "ntk-nk").output.text.as_str(), "のか、");
+}
+#[test]
+fn particle_no_order_follows_the_previous_context() {
+    for (context, expected) in [
+        (Context::Unknown, ["のに", "での", "との", "への"]),
+        (Context::Place, ["のに", "での", "との", "への"]),
+        (Context::Noun, ["のに", "での", "との", "への"]),
+        (Context::Incomplete, ["のに", "での", "との", "への"]),
+        (Context::QuestionPredicate, ["のに", "での", "との", "への"]),
+        (Context::QuestionParticle, ["のに", "での", "との", "への"]),
+        (Context::Nominalizable, ["のに", "ので", "のと", "のか"]),
+        (Context::AttributiveNa, ["のに", "ので", "のと", "のか"]),
+        (Context::IndefiniteNoun, ["のに", "での", "との", "かの"]),
+    ] {
+        for (left, want) in ["t", "tk", "nt", "ntk"].into_iter().zip(expected) {
+            assert_eq!(
+                particle(left, "k", context).unwrap().text.as_str(),
+                want,
+                "{context:?} {left}-k"
+            );
+            assert_eq!(
+                particle(left, "nk", context).unwrap().text.as_str(),
+                format!("{want}、"),
+                "{context:?} {left}-nk"
+            );
+        }
+    }
+    for (context, want) in [
+        (Context::Unknown, "な"),
+        (Context::Place, "な"),
+        (Context::Nominalizable, "のが"),
+        (Context::AttributiveNa, "のが"),
+    ] {
+        assert_eq!(particle("k", "k", context).unwrap().text.as_str(), want);
+    }
+    assert_eq!(
+        particle("", "k", Context::Nominalizable)
+            .unwrap()
+            .text
+            .as_str(),
+        "が"
+    );
+    assert_eq!(
+        particle("n", "k", Context::Nominalizable)
+            .unwrap()
+            .text
+            .as_str(),
+        "が、"
+    );
+    for left in ["k", "tk", "nt", "ntk"] {
+        for right in ["k", "nk"] {
+            let stroke = format!("{left}-{right}");
+            assert!(
+                preview(&stroke, State::default()).dynamic_particle,
+                "{stroke}"
+            );
+        }
+    }
+    assert!(!preview("n-k", State::default()).dynamic_particle);
+    assert!(!preview("t-k", State::default()).dynamic_particle);
+    assert!(!preview("t-nk", State::default()).dynamic_particle);
+
+    for (previous, expected) in [
+        ("K-KAU", "での"),
+        ("n-*", "ので"),
+        ("K-", "ので"),
+        ("K-k", "ので"),
+        ("k-k", "ので"),
+    ] {
+        let mut session = Session::<20>::new();
+        let preceding = input(&mut session, previous);
+        if previous == "K-k" {
+            assert_eq!(preceding.output.text.as_str(), "きます");
+        }
+        assert_eq!(
+            input(&mut session, "tk-k").output.text.as_str(),
+            expected,
+            "{previous}"
+        );
+    }
+}
+#[test]
+fn desu_uses_particle_or_the_selected_abbreviation() {
+    for (stroke, expected) in [
+        ("-TN", "です"),
+        ("k-TN", "のです"),
+        ("t-TN", "にです"),
+        ("ST-TN", "からです"),
+        ("ST-TNt", "からでした"),
+        ("KI-TN*", "ときです"),
+        ("KI-TNt*", "ときでした"),
+        ("TAU-TN*", "ところです"),
+    ] {
+        assert_eq!(
+            preview(stroke, State::default()).output.text.as_str(),
+            expected,
+            "{stroke}"
+        );
+    }
+    assert_eq!(
+        preview("ST-TN", State::default()).output.context,
+        Context::Nominalizable
+    );
+}
+#[test]
 fn he_ka_and_attached_particles() {
     for (word, expected) in [
         ("n-*", "か"),

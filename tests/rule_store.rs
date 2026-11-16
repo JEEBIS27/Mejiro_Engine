@@ -152,3 +152,22 @@ fn c_api_round_trips_a_rule_and_rejects_invalid_utf8() {
     );
     assert_eq!(unsafe { mejiro_core_session_rule_count(ptr) }, 0);
 }
+
+#[test]
+fn runtime_dictionary_accepts_96_entries_and_rejects_the_97th_atomically() {
+    let mut session = Session::<2>::new();
+    let key = |n: usize| -> String {
+        let mut s: String = "STKNYIA".chars().enumerate()
+            .filter_map(|(i, c)| if n & (1 << i) != 0 { Some(c) } else { None }).collect();
+        s.push('-');
+        s
+    };
+    for n in 1..=96 {
+        session.set_rule(RuleKind::User, &key(n), "あ", "", Context::Unknown).unwrap();
+    }
+    assert_eq!(session.rules().len(), 96);
+    assert_eq!(session.set_rule(RuleKind::User, &key(97), "い", "", Context::Unknown), Err(Error::Capacity));
+    assert_eq!(session.rules().len(), 96);
+    session.set_rule(RuleKind::User, &key(96), "う", "", Context::Unknown).unwrap();
+    assert_eq!(session.rules().len(), 96);
+}

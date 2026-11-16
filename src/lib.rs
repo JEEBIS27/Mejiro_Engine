@@ -3,6 +3,12 @@
 //! bounded history, repeat, recording, and all linguistic/typing state.
 #![no_std]
 
+#[cfg(feature = "reverse")]
+extern crate std;
+
+#[cfg(feature = "reverse")]
+pub mod reverse;
+
 pub mod ffi;
 mod tables;
 pub const MACRO_KEYS: &[&str] = &["n", "t", "k", "nt", "nk", "tk", "ntk"];
@@ -398,7 +404,8 @@ impl<'a> Stroke<'a> {
             && self.right.consonant.is_empty()
             && self.right.vowel.is_empty()
             && !self.star
-            && ((self.left.particle == "k" && matches!(self.right.particle, "k" | "nk"))
+            && ((matches!(self.left.particle, "k" | "tk" | "nt")
+                && matches!(self.right.particle, "k" | "nk"))
                 || self.left.particle == "ntk")
     }
 }
