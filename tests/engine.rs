@@ -79,6 +79,29 @@ fn grammar_uses_classified_output_not_suffix_guessing() {
     assert_eq!(input(&mut s, "k-k").output.text.as_str(), "な");
 }
 #[test]
+fn demonstrative_extended_general_abbreviations() {
+    for (stroke, expected) in [
+        ("YIU-TKA*", "いうようなはなし"),
+        ("IAU-TKA*", "ふうなはなし"),
+        ("YIAU-TKA*", "いうふうなはなし"),
+        ("KYIU-TKA*", "こういうようなはなし"),
+        ("SYIU-TKA*", "そういうようなはなし"),
+        ("SKYIU-TKA*", "ああいうようなはなし"),
+        ("TNYIU-TKA*", "どういうようなはなし"),
+        ("KIAU-TKA*", "こんなふうなはなし"),
+        ("SIAU-TKA*", "そんなふうなはなし"),
+        ("SKIAU-TKA*", "あんなふうなはなし"),
+        ("TNIAU-TKA*", "どんなふうなはなし"),
+        ("KYIAU-TKA*", "こういうふうなはなし"),
+        ("SYIAU-TKA*", "そういうふうなはなし"),
+        ("SKYIAU-TKA*", "ああいうふうなはなし"),
+        ("TNYIAU-TKA*", "どういうふうなはなし"),
+    ] {
+        assert_eq!(preview(stroke, State::default()).output.text.as_str(), expected, "{stroke}");
+    }
+}
+
+#[test]
 fn noun_no_in_general_abbreviations_and_after_na() {
     for (stroke, expected) in [
         ("K-NAU*", "こんなの"),
