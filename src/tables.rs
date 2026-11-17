@@ -119,12 +119,12 @@ pub const PARTICLE_EXCEPTIONS: &[(&str, &str)] =
     &[("-nk", "、"), ("-nt", "。"), ("n-nk", "!"), ("n-nt", "?")];
 pub const USERS_MAP: &[(&str, &str)] = &[];
 pub const ABSTRACT_MAP: &[(&str, &str)] = &[
+    ("-IU", "ああいう"),
     ("-KAU", "あそこ"),
     ("-NA", "あんな"),
     ("-STA", "あちら"),
     ("-STIA", "あれ"),
     ("-TI", "あっち"),
-    ("-IU", "ああいう"),
     ("K-KAU", "ここ"),
     ("K-U", "こう"),
     ("K-N", "かん"),
