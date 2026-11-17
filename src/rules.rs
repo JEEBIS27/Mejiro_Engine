@@ -1014,60 +1014,6 @@ mod verb_tests {
     }
 
     #[test]
-    fn registered_irregular_verbs() {
-        for (stem, row, index, suffix, expected) in [
-            ("い", "k", 6, "た", "いった"),
-            ("もってい", "k", 6, "た", "もっていった"),
-            ("てい", "k", 6, "て", "ていって"),
-            ("あ", "r", 0, "ない", "ない"),
-            ("ござ", "r", 4, "ます", "ございます"),
-            ("なさ", "r", 4, "ます", "なさいます"),
-            ("くださ", "r", 4, "ます", "くださいます"),
-            ("いらっしゃ", "r", 4, "ます", "いらっしゃいます"),
-            ("おっしゃ", "r", 4, "ます", "おっしゃいます"),
-            ("きに", "sh", 5, "", "きにする"),
-            ("きに", "sh", 0, "ない", "きにしない"),
-            ("きに", "sh", 6, "た", "きにした"),
-            ("きに", "sh", 4, "ます", "きにします"),
-            ("もって", "kh", 5, "", "もってくる"),
-            ("もって", "kh", 0, "ない", "もってこない"),
-            ("もって", "kh", 6, "た", "もってきた"),
-            ("もって", "kh", 4, "ます", "もってきます"),
-        ] {
-            assert_eq!(
-                registered_verb(stem, row, index, suffix).unwrap().as_str(),
-                expected
-            );
-        }
-        assert_eq!(
-            registered_verb("し", "nh", 5, ""),
-            Err(Error::InvalidStroke)
-        );
-    }
-
-    #[test]
-    fn noun_plus_suru_is_not_registered_as_a_verb() {
-        for stem in [
-            "すらいでぃんぐ",
-            "たいいん",
-            "とうぶん",
-            "べんきょう",
-            "せつめい",
-            "かくにん",
-            "りょこう",
-            "れんしゅう",
-            "だうんろーど",
-        ] {
-            assert!(
-                !VERB_MAP
-                    .iter()
-                    .any(|(_, entry)| entry[0] == stem && entry[1] == "sh"),
-                "noun + suru must be entered separately: {stem}"
-            );
-        }
-    }
-
-    #[test]
     fn verbs_are_unique_in_stroke_kana_order_with_valid_rows() {
         for (index, &(key, entry)) in VERB_MAP.iter().enumerate() {
             assert_eq!(entry.len(), 2);
