@@ -3799,7 +3799,8 @@ pub const PLACE_WORDS: &[&str] = &[
     "どっち",
 ];
 pub const INDEFINITE_WORDS: &[&str] = &["どれ", "なに", "なん"];
-pub const ATTRIBUTIVE_NA_WORDS: &[&str] = &["あんな", "こんな", "そんな", "どんな", "ふうな", "ような"];
+pub const ATTRIBUTIVE_NA_WORDS: &[&str] =
+    &["あんな", "こんな", "そんな", "どんな", "ふうな", "ような"];
 pub const QUESTION_PARTICLES: &[&str] = &["から", "だから", "だけ", "と", "の", "も"];
 pub const NOMINALIZABLE_EXCEPTIONS: &[&str] = &[
     "nt-", "nt-n", "nt-nt", "nt-t", "tk-", "tk-k", "tk-n", "tk-nk", "tk-nt", "tk-t", "tk-tk",

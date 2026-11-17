@@ -97,7 +97,11 @@ fn demonstrative_extended_general_abbreviations() {
         ("SKYIAU-TKA*", "ああいうふうなはなし"),
         ("TNYIAU-TKA*", "どういうふうなはなし"),
     ] {
-        assert_eq!(preview(stroke, State::default()).output.text.as_str(), expected, "{stroke}");
+        assert_eq!(
+            preview(stroke, State::default()).output.text.as_str(),
+            expected,
+            "{stroke}"
+        );
     }
 }
 
