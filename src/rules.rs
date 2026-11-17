@@ -349,10 +349,10 @@ fn conjugate(
     Ok(text)
 }
 fn registered_verb(stem: &str, inflection: &str, i: usize, suffix: &str) -> Result<Text> {
-    if inflection == "k" {
-        if let Some(prefix) = stem.strip_suffix('い') {
-            return join(&[prefix, IKU_LIST[i], suffix]);
-        }
+    if inflection == "k"
+        && let Some(prefix) = stem.strip_suffix('い')
+    {
+        return join(&[prefix, IKU_LIST[i], suffix]);
     }
     let special = match (stem, inflection) {
         ("あ", "r") => return join(&[ARU_LIST[i], suffix]),
