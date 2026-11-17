@@ -32,8 +32,8 @@ check: fmt-check lint test
 sync-plover destination='../Plover_Mejiro':
     python3 tools/sync_plover_engine.py "$1"
 
-# 現在のEngineをPlover、QMK Vial、Mejiro31サイトへ反映
-sync: sync-plover sync-qmk sync-site
+# 現在のEngineをPlover、QMK Vial、Mejiro31サイト、MejiroIMEへ反映
+sync: sync-plover sync-qmk sync-site sync-ime
 
 # 隣のQMK Vial作業領域を現在のEngineで準備
 sync-qmk destination='../qmk_firmware':
@@ -42,3 +42,7 @@ sync-qmk destination='../qmk_firmware':
 # サイトの逆引きWebAssemblyを現在のEngineで更新
 sync-site destination='../Mejiro31':
     "{{just_executable()}}" --justfile "$1/justfile" build-reverse "{{justfile_directory()}}"
+
+# 隣のMejiroIMEへ現在の作業ツリーのEngineをコピー（コミット不要）
+sync-ime destination='../MejiroIME':
+    python3 tools/sync_ime_engine.py "$1"
