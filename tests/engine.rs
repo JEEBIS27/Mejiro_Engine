@@ -82,7 +82,7 @@ fn grammar_uses_classified_output_not_suffix_guessing() {
 fn demonstrative_extended_general_abbreviations() {
     for (stroke, expected) in [
         ("YIU-TKA*", "いうようなはなし"),
-        ("IAU-TKA*", "ふうなはなし"),
+        ("IAU-TKA*", "あんなふうなはなし"),
         ("YIAU-TKA*", "いうふうなはなし"),
         ("KYIU-TKA*", "こういうようなはなし"),
         ("SYIU-TKA*", "そういうようなはなし"),
