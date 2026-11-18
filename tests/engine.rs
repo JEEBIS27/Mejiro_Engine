@@ -672,6 +672,11 @@ fn ime_off_follows_optional_system_selection() {
 #[test]
 fn rebuilt_verb_vocabulary_and_shortcuts() {
     for (stroke, expected) in [
+        ("AU-SNU*", "おとずれる"),
+        ("SNU-*", "ずれる"),
+        ("SNU-STIA*", "ずれる"),
+        ("SNU-STIAn*", "ずれない"),
+        ("SNU-STIAntk*", "ずれて"),
         ("I-TNA*", "いただく"),
         ("I-TA*", "いたる"),
         ("KA-SNI*", "かんじる"),
