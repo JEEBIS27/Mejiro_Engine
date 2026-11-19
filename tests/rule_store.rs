@@ -109,6 +109,41 @@ fn composite_general_parts_can_be_edited() {
 }
 
 #[test]
+fn generated_demonstrative_entries_can_be_edited_and_hidden() {
+    let mut session = Session::<2>::new();
+    for (kind, key, stroke, original, replacement, edited) in [
+        (
+            RuleKind::General,
+            "SK-NA",
+            "SK-NA",
+            "あんな",
+            "別の",
+            "別の",
+        ),
+        (
+            RuleKind::GeneralLeft,
+            "SKY",
+            "SKY-KAU*",
+            "あんなこと",
+            "別の",
+            "別のこと",
+        ),
+    ] {
+        assert_eq!(text(&session, stroke), original);
+        session
+            .set_rule(kind, key, replacement, "", Context::Unknown)
+            .unwrap();
+        assert_eq!(text(&session, stroke), edited);
+        session.hide_rule(kind, key).unwrap();
+        let hidden = text(&session, stroke);
+        assert_ne!(hidden, original);
+        assert_ne!(hidden, edited);
+        session.clear_rule(kind, key).unwrap();
+        assert_eq!(text(&session, stroke), original);
+    }
+}
+
+#[test]
 fn c_api_round_trips_a_rule_and_rejects_invalid_utf8() {
     let mut session = Box::new(Session::<20>::new());
     let ptr = (&mut *session as *mut Session<20>).cast::<u8>();

@@ -81,6 +81,14 @@ fn grammar_uses_classified_output_not_suffix_guessing() {
 #[test]
 fn demonstrative_extended_general_abbreviations() {
     for (stroke, expected) in [
+        ("KY-KAU*", "こんなこと"),
+        ("SY-KAU*", "そんなこと"),
+        ("SKY-KAU*", "あんなこと"),
+        ("TNY-KAU*", "どんなこと"),
+        ("Y-KAU*", "なこと"),
+        ("YI-KAU*", "ようなこと"),
+        ("KIU-KAU*", "こういうこと"),
+        ("KYIU-KAU*", "こういうようなこと"),
         ("YIU-TKA*", "いうようなはなし"),
         ("IAU-TKA*", "あんなふうなはなし"),
         ("YIAU-TKA*", "いうふうなはなし"),
@@ -88,7 +96,8 @@ fn demonstrative_extended_general_abbreviations() {
         ("SYIU-TKA*", "そういうようなはなし"),
         ("SKYIU-TKA*", "ああいうようなはなし"),
         ("TNYIU-TKA*", "どういうようなはなし"),
-        ("KIAU-TKA*", "こんなふうなはなし"),
+        ("KIAU-KAU*", "こうしたこと"),
+        ("KIAU-TKA*", "こうしたはなし"),
         ("SIAU-TKA*", "そんなふうなはなし"),
         ("SKIAU-TKA*", "あんなふうなはなし"),
         ("TNIAU-TKA*", "どんなふうなはなし"),
@@ -167,13 +176,15 @@ fn noun_no_in_general_abbreviations_and_after_na() {
         ("KIU-NAU*", "こういうの"),
         ("N-TKYIAU*", "なんのふう"),
         ("K-TKYIAU*", "こんなふう"),
-        ("Y-NAU*", "ようなの"),
+        ("Y-NAU*", "なの"),
+        ("YI-NAU*", "ようなの"),
         ("TK-NAU*", "ほうの"),
         ("TKY-NAU*", "ふうなの"),
         ("SK-KA*", "あのかんじ"),
         ("SK-YI*", "あのよう"),
         ("SK-TKYIAU*", "あんなふう"),
-        ("Y-KA*", "ようなかんじ"),
+        ("Y-KA*", "なかんじ"),
+        ("YI-KA*", "ようなかんじ"),
         ("TK-KA*", "ほうのかんじ"),
         ("TKY-KA*", "ふうなかんじ"),
         ("TK-", "ほう"),
@@ -187,6 +198,11 @@ fn noun_no_in_general_abbreviations_and_after_na() {
     let attributive = preview("TK-NA", State::default());
     assert_eq!(attributive.output.text.as_str(), "ふうな");
     assert_eq!(attributive.output.context, Context::AttributiveNa);
+    for (stroke, reading) in [("Y-STN*", "な"), ("YI-STN*", "ような")] {
+        let result = preview(stroke, State::default());
+        assert_eq!(result.output.text.as_str(), reading);
+        assert_eq!(result.output.context, Context::AttributiveNa);
+    }
     let mut session = Session::<20>::new();
     assert_eq!(input(&mut session, "k-k").output.text.as_str(), "な");
     assert_eq!(input(&mut session, "ntk-k").output.text.as_str(), "のか");
