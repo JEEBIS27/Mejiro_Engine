@@ -106,6 +106,57 @@ fn demonstrative_extended_general_abbreviations() {
 }
 
 #[test]
+fn direct_nau_general_abbreviations() {
+    use mejiro_engine::ime::{SegmentKind, analyze};
+
+    for stroke in ["-IU", "-KAU", "-NA", "-NAU", "-STA", "-STIA", "-TI", "n-NA"] {
+        let analysis = analyze(
+            stroke,
+            State::default(),
+            true,
+            &mejiro_engine::RuleStore::new(),
+        )
+        .unwrap();
+        assert!(
+            analysis.segments().iter().all(|segment| !matches!(
+                segment.kind,
+                SegmentKind::GeneralAbbreviation | SegmentKind::Copula
+            )),
+            "{stroke}"
+        );
+    }
+
+    for (stroke, reading) in [
+        ("SK-NAU", "あの"),
+        ("SK-KAU", "あそこ"),
+        ("SK-NA", "あんな"),
+        ("SK-STA", "あちら"),
+        ("SK-STIA", "あれ"),
+        ("SK-TI", "あっち"),
+        ("K-NAU", "この"),
+        ("S-NAU", "その"),
+        ("TN-NAU", "どの"),
+        ("N-NAU", "なんの"),
+        ("T-NAU", "との"),
+        ("SKY-NAU", "あんなの"),
+        ("KY-NAU", "こんなの"),
+        ("SY-NAU", "そんなの"),
+        ("TNY-NAU", "どんなの"),
+        ("NY-NAU", "なんなの"),
+    ] {
+        let state = State::default();
+        let result = preview(stroke, state);
+        assert_eq!(result.output.text.as_str(), reading, "{stroke}");
+        let analysis = analyze(stroke, state, true, &mejiro_engine::RuleStore::new()).unwrap();
+        assert_eq!(
+            analysis.segments()[0].kind,
+            SegmentKind::GeneralAbbreviation,
+            "{stroke}"
+        );
+    }
+}
+
+#[test]
 fn noun_no_in_general_abbreviations_and_after_na() {
     for (stroke, expected) in [
         ("K-NAU*", "こんなの"),
