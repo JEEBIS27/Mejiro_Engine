@@ -128,7 +128,7 @@ pub(crate) struct Demonstrative {
 
 // Each row supplies the stems for the same direct and composite forms.
 macro_rules! demonstrative {
-    ($key:literal, $stem:literal, $adverb:literal, $place:literal, $iau:literal) => {{
+    ($key:literal, $stem:literal, $adverb:literal, $place:literal) => {{
         const NO: &str = concat!($stem, "の");
         const NA: &str = concat!($stem, "んな");
         const IU: &str = concat!($adverb, "いう");
@@ -148,7 +148,7 @@ macro_rules! demonstrative {
                 ],
                 left: &[
                     ("", NO),
-                    ("IAU", $iau),
+                    ("IAU", concat!($adverb, "した")),
                     ("IU", IU),
                     ("Y", NA),
                     ("YIAU", concat!($adverb, "いうふうな")),
@@ -162,10 +162,10 @@ macro_rules! demonstrative {
 }
 
 pub(crate) const DEMONSTRATIVES: &[(&str, Demonstrative)] = &[
-    demonstrative!("K", "こ", "こう", "ここ", "こうした"),
-    demonstrative!("S", "そ", "そう", "そこ", "そんなふうな"),
-    demonstrative!("SK", "あ", "ああ", "あそこ", "あんなふうな"),
-    demonstrative!("TN", "ど", "どう", "どこ", "どんなふうな"),
+    demonstrative!("K", "こ", "こう", "ここ"),
+    demonstrative!("S", "そ", "そう", "そこ"),
+    demonstrative!("SK", "あ", "ああ", "あそこ"),
+    demonstrative!("TN", "ど", "どう", "どこ"),
 ];
 
 pub(crate) fn demonstrative_direct(
@@ -230,7 +230,7 @@ pub const ABSTRACT_MAP: &[(&str, &str)] = &[
 ];
 pub const ABSTRACT_MAP_LEFT: &[(&str, &str)] = &[
     ("", "あの"),
-    ("IAU", "あんなふうな"),
+    ("IAU", "ああした"),
     ("IU", "ああいう"),
     ("N", "なんの"),
     ("NIU", "なんていう"),
