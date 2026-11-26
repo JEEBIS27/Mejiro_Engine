@@ -790,3 +790,31 @@ fn rebuilt_verb_vocabulary_and_shortcuts() {
         );
     }
 }
+
+#[test]
+fn eager_romaji_sokuon_is_per_stroke_and_opt_in() {
+    let mut s = Session::<20>::new();
+    assert_eq!(s.process("KAtk-").unwrap().output.text.as_str(), "かっ");
+    s.set_typing_mode(Mode::Romaji).unwrap();
+    s.process("#-n").unwrap();
+    assert_eq!(s.process("KAtk-").unwrap().output.text.as_str(), "ka");
+    assert_eq!(s.process("TA-").unwrap().output.text.as_str(), "tta");
+
+    s.set_eager_romaji_sokuon(true);
+    s.process("#n-*").unwrap();
+    let preview = s.preview("KAtk-", true).unwrap();
+    assert_eq!(preview.output.text.as_str(), "kaltsu");
+    assert!(!preview.next.pending_sokuon());
+    let event = s.process("KAtk-").unwrap();
+    assert_eq!(event.output, preview.output);
+    s.acknowledge(event.ticket.unwrap(), 2).unwrap();
+    assert_eq!(s.process("-U").unwrap().erase_units, 2);
+    assert!(!s.state().pending_sokuon());
+    assert_eq!(s.process("TA-").unwrap().output.text.as_str(), "ta");
+    s.process("#-*").unwrap();
+    assert_eq!(s.process("#n").unwrap().output.text.as_str(), "kaltsuta");
+    s.reset();
+    assert_eq!(s.process("KAtk-").unwrap().output.text.as_str(), "kaltsu");
+    assert_eq!(s.process_override("まっ").unwrap().output.text.as_str(), "maltsu");
+    assert_eq!(s.process("STNtk-").unwrap().output.text.as_str(), "ltsu");
+}

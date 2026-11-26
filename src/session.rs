@@ -53,6 +53,7 @@ pub struct Session<const H: usize = 20> {
     order: [u8; 7],
     order_len: usize,
     typing_mode: Mode,
+    eager_romaji_sokuon: bool,
     rules: RuleStore,
 }
 impl<const H: usize> Default for Session<H> {
@@ -75,6 +76,7 @@ impl<const H: usize> Session<H> {
             order: [0; 7],
             order_len: 0,
             typing_mode: Mode::Romaji,
+            eager_romaji_sokuon: false,
             rules: RuleStore::new(),
         }
     }
@@ -114,7 +116,27 @@ impl<const H: usize> Session<H> {
         self.reset();
     }
     pub fn preview(&self, raw: &str, include_commands: bool) -> Result<Translation> {
-        translate_with_rules(raw, self.state, include_commands, &self.rules)
+        let mut result = translate_with_rules(raw, self.state, include_commands, &self.rules)?;
+        if result.request == Request::Output {
+            self.finish_sokuon(&mut result.output, &mut result.next)?;
+        }
+        Ok(result)
+    }
+    /// Emit a stroke-ending small-tsu as ltsu in Romaji instead of carrying it
+    /// into the next stroke. Use for Japanese IMEs, not typing games that
+    /// accept only doubled consonants. Changing this clears undo/history.
+    pub fn set_eager_romaji_sokuon(&mut self, enabled: bool) {
+        if self.eager_romaji_sokuon != enabled {
+            self.eager_romaji_sokuon = enabled;
+            self.reset();
+        }
+    }
+    fn finish_sokuon(&self, output: &mut Output, next: &mut State) -> Result<()> {
+        if self.eager_romaji_sokuon && next.mode == Mode::Romaji && next.pending_sokuon {
+            output.push_text("ltsu")?;
+            next.pending_sokuon = false;
+        }
+        Ok(())
     }
     pub fn history_len(&self) -> usize {
         self.len
@@ -282,6 +304,7 @@ impl<const H: usize> Session<H> {
         output.push_text(text)?;
         let mut next = self.state;
         render(&mut output, &mut next)?;
+        self.finish_sokuon(&mut output, &mut next)?;
         if !output.is_empty() {
             next.context = Context::Unknown;
         }
